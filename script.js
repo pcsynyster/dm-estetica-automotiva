@@ -551,6 +551,24 @@ function initPanel() {
   $("#resetDemo").addEventListener("click", () => { Store.seed(); renderPanel(); if (state.step === 3) renderSlots(); });
 }
 
+function initHeroStage() {
+  const stage = $("#heroStage");
+  if (!stage || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let ticking = false;
+  const update = () => {
+    const rect = stage.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const p = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.75)));
+    stage.style.setProperty("--p", p.toFixed(3));
+    ticking = false;
+  };
+  window.addEventListener("scroll", () => {
+    if (!ticking) { requestAnimationFrame(update); ticking = true; }
+  }, { passive: true });
+  window.addEventListener("resize", update);
+  update();
+}
+
 /* menu */
 function initNav() {
   const toggle = $("#navToggle");
@@ -572,6 +590,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#year").textContent = new Date().getFullYear();
   $("#hoursText").innerHTML = CONFIG.hoursText;
   initNav();
+  initHeroStage();
   initServices();
   initBooking();
   initPanel();

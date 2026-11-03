@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800;1,900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800;1,900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,30 +32,37 @@
   </header>
 
   <main>
-    <section class="hero">
-      <div class="hero__slash" aria-hidden="true"></div>
-      <div class="container hero__inner">
-        <div class="hero__text">
-          <p class="eyebrow">Parnamirim &middot; Rio Grande do Norte</p>
-          <h1 class="hero__title">Estética automotiva <span>premium</span></h1>
-          <p class="hero__lead">Da lavagem detalhada à vitrificação com 3 anos de proteção. Cuidado de verdade, produto de qualidade e acabamento que aparece no brilho.</p>
-          <div class="hero__ctas">
-            <a href="#agendar" class="btn btn--red">Agendar meu horário</a>
-            <a href="#servicos" class="btn btn--ghost">Ver tabela de serviços</a>
-          </div>
-          <ul class="hero__stats">
-            <li><strong>10,8 mil</strong><span>seguidores no Instagram</span></li>
-            <li><strong>8</strong><span>pacotes de serviço</span></li>
-            <li><strong>3 anos</strong><span>de proteção na vitrificação</span></li>
-          </ul>
-        </div>
-        <div class="hero__media">
-          <div class="hero__frame">
-            <video src="assets/video-1.mp4" poster="assets/video-1-poster.jpg" autoplay muted loop playsinline></video>
-          </div>
-          <div class="chevrons" aria-hidden="true"><i></i><i></i><i></i></div>
+    <section class="hero" id="inicio">
+      <div class="container hero__intro">
+        <p class="hero__eyebrow">DM Estética Automotiva</p>
+        <h1 class="hero__title">Brilho de<br>outro nível.</h1>
+        <p class="hero__lead">Lavagem detalhada, polimento técnico e vitrificação com até 3 anos de proteção. Em Parnamirim.</p>
+        <div class="hero__ctas">
+          <a href="#agendar" class="pill">Agendar horário</a>
+          <a href="#servicos" class="link-arrow">Ver serviços
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
         </div>
       </div>
+
+      <div class="hero__stage" id="heroStage">
+        <figure class="hero__tile hero__tile--side">
+          <video src="assets/video-2.mp4" poster="assets/video-2-poster.jpg" autoplay muted loop playsinline></video>
+        </figure>
+        <figure class="hero__tile hero__tile--main">
+          <video src="assets/video-1.mp4" poster="assets/video-1-poster.jpg" autoplay muted loop playsinline></video>
+        </figure>
+        <figure class="hero__tile hero__tile--side">
+          <img src="assets/fortuner.jpg" alt="SUV branca finalizada no estúdio da DM">
+        </figure>
+      </div>
+
+      <ul class="container hero__specs">
+        <li><strong>3 anos</strong><span>de proteção com vitrificação nano cerâmica</span></li>
+        <li><strong>90%</strong><span>mais visibilidade com a cristalização dos faróis</span></li>
+        <li><strong>8</strong><span>pacotes, da lavagem completa ao GT Exclusive</span></li>
+        <li><strong>10,8 mil</strong><span>pessoas acompanham o trabalho no Instagram</span></li>
+      </ul>
     </section>
 
     <section class="section services" id="servicos">
