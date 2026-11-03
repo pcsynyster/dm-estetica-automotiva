@@ -34,6 +34,9 @@
 
   <main>
     <section class="hero" id="inicio">
+      <div class="hero__bg" aria-hidden="true">
+        <video id="heroVideo" src="assets/hero-lancer.mp4" poster="assets/hero-lancer-poster.jpg" autoplay muted loop playsinline></video>
+      </div>
       <div class="container hero__intro">
         <p class="hero__eyebrow">DM Estética Automotiva</p>
         <h1 class="hero__title">Brilho de<br>outro nível.</h1>
@@ -45,19 +48,13 @@
           </a>
         </div>
       </div>
+      <button type="button" class="hero__toggle" id="heroToggle" aria-label="Pausar vídeo">
+        <svg class="i-pause" viewBox="0 0 24 24" width="14" height="14"><path d="M8 5v14M16 5v14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        <svg class="i-play" viewBox="0 0 24 24" width="14" height="14"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></svg>
+      </button>
+    </section>
 
-      <div class="hero__stage" id="heroStage">
-        <figure class="hero__tile hero__tile--side">
-          <video src="assets/video-2.mp4" poster="assets/video-2-poster.jpg" autoplay muted loop playsinline preload="metadata"></video>
-        </figure>
-        <figure class="hero__tile hero__tile--main">
-          <video src="assets/video-1.mp4" poster="assets/video-1-poster.jpg" autoplay muted loop playsinline></video>
-        </figure>
-        <figure class="hero__tile hero__tile--side">
-          <img src="assets/fortuner.jpg" alt="SUV branca finalizada no estúdio da DM">
-        </figure>
-      </div>
-
+    <section class="specs">
       <ul class="container hero__specs">
         <li class="reveal"><strong>3 anos</strong><span>de proteção com vitrificação nano cerâmica</span></li>
         <li class="reveal"><strong>90%</strong><span>mais visibilidade com a cristalização dos faróis</span></li>

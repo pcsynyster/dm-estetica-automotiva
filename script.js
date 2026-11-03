@@ -582,22 +582,32 @@ function initPanel() {
   $("#resetDemo").addEventListener("click", () => { Store.seed(); renderPanel(); if (state.step === 3) renderSlots(); });
 }
 
-function initHeroStage() {
-  const stage = $("#heroStage");
-  if (!stage || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+function initHero() {
+  const hero = $(".hero");
+  const header = $(".header");
+  const video = $("#heroVideo");
+  const toggle = $("#heroToggle");
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let ticking = false;
   const update = () => {
-    const rect = stage.getBoundingClientRect();
-    const vh = window.innerHeight;
-    const p = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.75)));
-    stage.style.setProperty("--p", p.toFixed(3));
+    const y = window.scrollY;
+    header.classList.toggle("is-scrolled", y > 20);
+    if (!reduce) hero.style.setProperty("--p", Math.min(1, y / hero.offsetHeight).toFixed(3));
     ticking = false;
   };
   window.addEventListener("scroll", () => {
     if (!ticking) { requestAnimationFrame(update); ticking = true; }
   }, { passive: true });
-  window.addEventListener("resize", update);
   update();
+
+  if (reduce) { video.pause(); toggle.classList.add("is-paused"); }
+  toggle.addEventListener("click", () => {
+    const paused = !video.paused;
+    if (paused) { video.pause(); video.dataset.userPaused = "1"; }
+    else { video.play().catch(() => {}); delete video.dataset.userPaused; }
+    toggle.classList.toggle("is-paused", paused);
+    toggle.setAttribute("aria-label", paused ? "Reproduzir vídeo" : "Pausar vídeo");
+  });
 }
 
 function initReveal() {
@@ -616,7 +626,7 @@ function initMedia() {
   const io = new IntersectionObserver((entries) => {
     entries.forEach((en) => {
       const v = en.target;
-      if (en.isIntersecting) v.play().catch(() => {});
+      if (en.isIntersecting) { if (!v.dataset.userPaused) v.play().catch(() => {}); }
       else v.pause();
     });
   }, { threshold: 0.05 });
@@ -645,6 +655,7 @@ function initNav() {
     toggle.setAttribute("aria-expanded", open);
     toggle.setAttribute("aria-label", open ? "Fechar menu" : "Abrir menu");
     document.body.style.overflow = open ? "hidden" : "";
+    $(".header").classList.toggle("is-menu", open);
   };
   toggle.addEventListener("click", () => setOpen(!nav.classList.contains("is-open")));
   $$("#nav a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
@@ -659,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#year").textContent = new Date().getFullYear();
   $("#hoursText").innerHTML = CONFIG.hoursText;
   initNav();
-  initHeroStage();
+  initHero();
   initReveal();
   initMedia();
   initFloat();
