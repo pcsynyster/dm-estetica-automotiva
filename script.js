@@ -1,5 +1,5 @@
 const CONFIG = {
-  whatsapp: "5584989861905",
+  whatsapp: "558498961905",
   storageKey: "dm_agendamentos",
   daysAhead: 14,
   hours: {
