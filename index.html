@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=12">
+  <link rel="stylesheet" href="style.css?v=13">
 </head>
 <body>
 
@@ -22,6 +22,7 @@
       <nav class="nav" id="nav" aria-label="Principal">
         <a href="#servicos">Serviços</a>
         <a href="#adicionais">Adicionais</a>
+        <a href="#motos">Motos</a>
         <a href="#estudio">O estúdio</a>
         <a href="#contato">Contato</a>
       </nav>
@@ -169,6 +170,34 @@
       </div>
     </section>
 
+    <section class="section motos" id="motos">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="eyebrow">Motos</p>
+          <h2 class="section__title">Sua moto também <br>merece brilhar.</h2>
+          <p class="section__sub">Lavagem técnica, polimento e vitrificação com o mesmo cuidado que a gente tem com os carros.</p>
+        </div>
+
+        <div class="reels reveal">
+          <figure class="reel"><video data-src="assets/moto-1.mp4" poster="assets/moto-1-poster.jpg" muted loop playsinline aria-label="Moto esportiva sendo lavada com espuma"></video></figure>
+          <figure class="reel"><video data-src="assets/moto-2.mp4" poster="assets/moto-2-poster.jpg" muted loop playsinline aria-label="Honda CBR com acabamento no estúdio"></video></figure>
+          <figure class="reel"><video data-src="assets/moto-3.mp4" poster="assets/moto-3-poster.jpg" muted loop playsinline aria-label="Moto esportiva preta finalizada"></video></figure>
+          <figure class="reel"><video data-src="assets/moto-4.mp4" poster="assets/moto-4-poster.jpg" muted loop playsinline aria-label="Scooter branca finalizada no estúdio"></video></figure>
+        </div>
+
+        <div class="services__bar reveal">
+          <div class="segmented segmented--size" id="motoSizePicker" aria-label="Porte da moto">
+            <button data-size="P" class="is-active">P</button>
+            <button data-size="M">M</button>
+            <button data-size="G">G</button>
+          </div>
+        </div>
+        <p class="size-hint" id="motoSizeHint"></p>
+
+        <div class="services__grid services__grid--4" id="motoGrid"></div>
+      </div>
+    </section>
+
     <section class="section booking" id="agendar">
       <div class="container">
         <div class="section__head reveal">
@@ -188,6 +217,10 @@
 
             <fieldset class="step is-active" data-step="1">
               <legend>Qual serviço você quer?</legend>
+              <div class="segmented bk-vehicle" id="bkVehicle" aria-label="Tipo de veículo">
+                <button type="button" data-vehicle="carro" class="is-active">Carro</button>
+                <button type="button" data-vehicle="moto">Moto</button>
+              </div>
               <div class="choice-list" id="bkServices"></div>
               <h4 class="step__sub" id="bkSizeTitle">Porte do veículo</h4>
               <div class="size-cards" id="bkSizes"></div>
@@ -195,7 +228,7 @@
 
             <fieldset class="step" data-step="2">
               <legend>Quer adicionar algo?</legend>
-              <p class="step__note">Opcional. Pode seguir sem marcar nada.</p>
+              <p class="step__note" id="bkExtrasNote">Opcional. Pode seguir sem marcar nada.</p>
               <div class="extra-checks" id="bkExtras"></div>
             </fieldset>
 
@@ -220,7 +253,7 @@
                 </label>
                 <label class="field">
                   <input type="text" id="fCar" placeholder=" ">
-                  <span>Modelo do carro</span>
+                  <span>Modelo do veículo</span>
                 </label>
                 <label class="field">
                   <input type="text" id="fPlate" placeholder=" " maxlength="8">
@@ -347,6 +380,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=12"></script>
+  <script src="script.js?v=13"></script>
 </body>
 </html>

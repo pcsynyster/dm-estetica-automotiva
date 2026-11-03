@@ -16,10 +16,76 @@ const CONFIG = {
 };
 
 const SIZES = {
-  P: { label: "Pequeno", examples: "Hatches e compactos, como Mobi, Onix, HB20 e Polo" },
-  M: { label: "Médio", examples: "Sedãs e SUVs compactos, como Corolla, Civic, Creta e T-Cross" },
-  G: { label: "Grande", examples: "SUVs grandes e picapes, como SW4, Hilux, Ranger e Commander" }
+  carro: {
+    P: { label: "Pequeno", examples: "Hatches e compactos, como Mobi, Onix, HB20 e Polo" },
+    M: { label: "Médio", examples: "Sedãs e SUVs compactos, como Corolla, Civic, Creta e T-Cross" },
+    G: { label: "Grande", examples: "SUVs grandes e picapes, como SW4, Hilux, Ranger e Commander" }
+  },
+  moto: {
+    P: { label: "Pequena", examples: "Baixa cilindrada, como CG, Fan, Biz e Pop" },
+    M: { label: "Média", examples: "Média cilindrada e scooters, como XRE 300, Fazer 250, NMAX e PCX" },
+    G: { label: "Grande", examples: "Alta cilindrada, como MT-09, CB 1000R, Hornet e BMW GS" }
+  }
 };
+
+const MOTO_SERVICES = [
+  {
+    id: "moto-basic", vehicle: "moto", type: "lavagem", name: "Lavagem", highlight: "Basic", sub: "Lavagem detalhada com cera protetiva",
+    prices: { P: 50, M: 80, G: 100 },
+    items: [
+      "Lavagem detalhada com shampoo para motocicleta",
+      "Limpeza detalhada do motor",
+      "Verniz de motor: condicionamento e proteção contra ressecamento em altas temperaturas, por até 6 meses",
+      "Selagem dos pneus",
+      "Limpeza e lubrificação da corrente",
+      "Cera protetiva na pintura, com proteção de até 4 meses"
+    ]
+  },
+  {
+    id: "moto-medium", vehicle: "moto", type: "lavagem", name: "Lavagem", highlight: "Medium", sub: "Lavagem técnica com descontaminação", tag: "Mais pedido",
+    prices: { P: 80, M: 100, G: 120 },
+    items: [
+      "Lavagem detalhada com shampoo para motocicleta",
+      "Limpeza detalhada do motor",
+      "Descontaminação ferrosa",
+      "Descontaminação da pintura",
+      "Revitalização dos plásticos",
+      "Verniz de motor: condicionamento e proteção contra ressecamento em altas temperaturas, por até 6 meses",
+      "Selagem dos pneus",
+      "Higienização e lubrificação da corrente",
+      "Cera Blend All in One aplicada na máquina, protegendo a pintura por até 6 meses"
+    ]
+  },
+  {
+    id: "moto-gold", vehicle: "moto", type: "tratamento", name: "Tratamento", highlight: "Gold", sub: "Polimento técnico",
+    prices: { P: 150, M: 200 },
+    items: [
+      "Lavagem detalhada com shampoo para motocicleta",
+      "Limpeza detalhada do motor",
+      "Descontaminação ferrosa e da pintura",
+      "Revitalização dos plásticos",
+      "Polimento técnico ou cristalização de pintura: elimina o máximo possível de microriscos e manchas",
+      "Verniz de motor com proteção contra ressecamento por até 6 meses",
+      "Selagem dos pneus",
+      "Higienização e lubrificação da corrente",
+      "Cera Blend All in One, protegendo a pintura por até 6 meses"
+    ]
+  },
+  {
+    id: "moto-protection", vehicle: "moto", type: "tratamento", name: "Protection", highlight: "Premium", sub: "Vitrificação completa",
+    prices: { P: 350, M: 500 },
+    items: [
+      "Lavagem detalhada com shampoo para motocicleta",
+      "Limpeza detalhada do motor",
+      "Descontaminação ferrosa e da pintura",
+      "Revitalização do escapamento",
+      "Coating nanocerâmico VX45 na pintura: alto brilho, repelência e proteção UV por até 3 anos",
+      "Vitrificação dos plásticos com V-Plastic (Vonixx), com até 1 ano de proteção",
+      "Selagem dos pneus",
+      "Higienização e lubrificação da corrente"
+    ]
+  }
+];
 
 const SERVICES = [
   {
@@ -149,6 +215,10 @@ const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => [...ctx.querySelectorAll(sel)];
 const brl = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const serviceTitle = (s) => `${s.name} ${s.highlight}`;
+const fullTitle = (s) => s.vehicle === "moto" ? `${serviceTitle(s)} (moto)` : serviceTitle(s);
+const vehicleOf = (id) => (findService(id) || {}).vehicle || "carro";
+const findService = (id) => SERVICES.find((x) => x.id === id) || MOTO_SERVICES.find((x) => x.id === id);
+const sizeLabel = (vehicle, size) => SIZES[vehicle || "carro"][size].label;
 const pad = (n) => String(n).padStart(2, "0");
 const isoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 const fromIso = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
@@ -183,44 +253,84 @@ const Store = {
 };
 
 /* serviços */
-let currentSize = "P";
-let currentFilter = "lavagem";
 const brlShort = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const catalogs = {
+  carro: { grid: "#servicesGrid", picker: "#sizePicker", hint: "#sizeHint", size: "P", filter: "lavagem" },
+  moto: { grid: "#motoGrid", picker: "#motoSizePicker", hint: "#motoSizeHint", size: "P", filter: "todos" }
+};
 
-function renderServices() {
-  const list = SERVICES.filter((s) => currentFilter === "todos" || s.type === currentFilter);
-  $("#servicesGrid").innerHTML = list.map((s) => `
+function cardPrice(s, size) {
+  const v = s.prices[size];
+  return v ? brlShort(v) : "Sob consulta";
+}
+
+function cardCta(s, size) {
+  if (s.prices[size]) return `<a href="#agendar" class="pill" data-book="${s.id}">Agendar</a>`;
+  const msg = encodeURIComponent(`Olá! Quero saber o valor do ${serviceTitle(s)} para moto de porte ${size}.`);
+  return `<a href="https://wa.me/${CONFIG.whatsapp}?text=${msg}" target="_blank" rel="noopener" class="pill pill--light" data-consult>Consultar valor</a>`;
+}
+
+function renderCatalog(vehicle) {
+  const c = catalogs[vehicle];
+  const source = vehicle === "moto" ? MOTO_SERVICES : SERVICES;
+  const list = source.filter((s) => c.filter === "todos" || s.type === c.filter);
+  $(c.grid).innerHTML = list.map((s) => `
     <article class="card ${s.tag ? "is-featured" : ""}" data-id="${s.id}">
       ${s.tag ? `<span class="card__tag">${s.tag}</span>` : ""}
       ${s.name === "Lavagem" || s.name === "Tratamento" ? "" : `<p class="card__kind">Tratamento</p>`}
       <h3 class="card__name">${serviceTitle(s)}</h3>
       <p class="card__sub">${s.sub}</p>
-      <p class="card__price"><span>Porte ${currentSize}</span><strong>${brlShort(s.prices[currentSize])}</strong></p>
+      <p class="card__price"><span>Porte ${c.size}</span><strong>${cardPrice(s, c.size)}</strong></p>
       <div class="card__ctas">
-        <a href="#agendar" class="pill" data-book="${s.id}">Agendar</a>
+        ${cardCta(s, c.size)}
         <button type="button" class="card__more" data-more aria-expanded="false">O que está incluso</button>
       </div>
       <div class="card__list"><ul>${s.items.map((it) => `<li>${it}</li>`).join("")}</ul></div>
     </article>`).join("");
-  updateSizeHint();
+  updateHint(vehicle);
 }
 
-function updateSizeHint() {
-  $("#sizeHint").textContent = `Porte ${currentSize}: ${SIZES[currentSize].examples}`;
+function updateHint(vehicle) {
+  const c = catalogs[vehicle];
+  $(c.hint).textContent = `Porte ${c.size}: ${SIZES[vehicle][c.size].examples}`;
 }
 
-function updatePrices() {
-  $$("#servicesGrid .card").forEach((card) => {
-    const s = SERVICES.find((x) => x.id === card.dataset.id);
+function updatePrices(vehicle) {
+  const c = catalogs[vehicle];
+  $$(`${c.grid} .card`).forEach((card) => {
+    const s = findService(card.dataset.id);
     const strong = card.querySelector(".card__price strong");
     strong.classList.add("is-changing");
     setTimeout(() => {
-      strong.textContent = brlShort(s.prices[currentSize]);
-      card.querySelector(".card__price span").textContent = `Porte ${currentSize}`;
+      strong.textContent = cardPrice(s, c.size);
+      card.querySelector(".card__price span").textContent = `Porte ${c.size}`;
+      card.querySelector(".card__ctas .pill").outerHTML = cardCta(s, c.size);
       strong.classList.remove("is-changing");
     }, 180);
   });
-  updateSizeHint();
+  updateHint(vehicle);
+}
+
+function bindCatalog(vehicle) {
+  const c = catalogs[vehicle];
+  $$(`${c.picker} button`).forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.size === c.size) return;
+    $$(`${c.picker} button`).forEach((x) => x.classList.toggle("is-active", x === b));
+    c.size = b.dataset.size;
+    updatePrices(vehicle);
+  }));
+  $(c.grid).addEventListener("click", (e) => {
+    const more = e.target.closest("[data-more]");
+    if (more) {
+      const card = more.closest(".card");
+      const open = card.classList.toggle("is-open");
+      more.textContent = open ? "Ocultar itens" : "O que está incluso";
+      more.setAttribute("aria-expanded", open);
+    }
+    const book = e.target.closest("[data-book]");
+    if (book) { e.preventDefault(); preselect(book.dataset.book, c.size); }
+  });
+  renderCatalog(vehicle);
 }
 
 function initServices() {
@@ -230,34 +340,18 @@ function initServices() {
       x.classList.toggle("is-active", x === t);
       x.setAttribute("aria-selected", x === t);
     });
-    currentFilter = t.dataset.filter;
-    renderServices();
+    catalogs.carro.filter = t.dataset.filter;
+    renderCatalog("carro");
   }));
-  $$("#sizePicker button").forEach((b) => b.addEventListener("click", () => {
-    if (b.dataset.size === currentSize) return;
-    $$("#sizePicker button").forEach((x) => x.classList.toggle("is-active", x === b));
-    currentSize = b.dataset.size;
-    updatePrices();
-  }));
-  $("#servicesGrid").addEventListener("click", (e) => {
-    const more = e.target.closest("[data-more]");
-    if (more) {
-      const card = more.closest(".card");
-      const open = card.classList.toggle("is-open");
-      more.textContent = open ? "Ocultar itens" : "O que está incluso";
-      more.setAttribute("aria-expanded", open);
-    }
-    const book = e.target.closest("[data-book]");
-    if (book) { e.preventDefault(); preselect(book.dataset.book, currentSize); }
-  });
   $("#extrasList").innerHTML = EXTRAS.map((x) => `<li><span>${x.name}</span><strong>${brlShort(x.price)}</strong></li>`).join("");
-  renderServices();
+  bindCatalog("carro");
+  bindCatalog("moto");
 }
 
 /* agendamento */
-const state = { step: 1, service: null, size: null, extras: [], date: null, time: null };
+const state = { step: 1, vehicle: "carro", service: null, size: null, extras: [], date: null, time: null };
 
-function getService() { return SERVICES.find((s) => s.id === state.service); }
+function getService() { return findService(state.service); }
 
 function calcTotal() {
   const s = getService();
@@ -266,41 +360,80 @@ function calcTotal() {
   return base + extras;
 }
 
-function renderBookingOptions() {
-  const opts = SERVICES.map((s) => `
+function renderServiceChoices() {
+  const source = state.vehicle === "moto" ? MOTO_SERVICES : SERVICES;
+  const opts = source.map((s) => `
     <label class="choice">
-      <input type="radio" name="service" value="${s.id}">
+      <input type="radio" name="service" value="${s.id}" ${state.service === s.id ? "checked" : ""}>
       <span class="choice__name">${serviceTitle(s)}<small>${s.sub}</small></span>
       <span class="choice__price">${brlShort(s.prices.P)}+</span>
     </label>`).join("");
-  const avulso = `
+  const avulso = state.vehicle === "carro" ? `
     <label class="choice">
-      <input type="radio" name="service" value="${ONLY_EXTRAS}">
+      <input type="radio" name="service" value="${ONLY_EXTRAS}" ${state.service === ONLY_EXTRAS ? "checked" : ""}>
       <span class="choice__name">Só serviços adicionais<small>Motor, farol, bancos, jet ski e outros</small></span>
       <span class="choice__price">na etapa 2</span>
-    </label>`;
+    </label>` : "";
   $("#bkServices").innerHTML = opts + avulso;
+}
 
-  $("#bkSizes").innerHTML = Object.entries(SIZES).map(([k, v]) => `
-    <label class="choice">
-      <input type="radio" name="size" value="${k}">
+function renderSizeChoices() {
+  const s = getService();
+  $("#bkSizes").innerHTML = Object.entries(SIZES[state.vehicle]).map(([k, v]) => {
+    const off = s && !s.prices[k];
+    return `
+    <label class="choice ${off ? "is-off" : ""}">
+      <input type="radio" name="size" value="${k}" ${state.size === k ? "checked" : ""} ${off ? "disabled" : ""}>
       <span class="choice__name">${k}</span>
-      <span class="choice__price">${v.examples}</span>
-    </label>`).join("");
+      <span class="choice__price">${off ? "Sob consulta pelo WhatsApp" : v.examples}</span>
+    </label>`;
+  }).join("");
+}
 
+function renderExtraChoices() {
+  const moto = state.vehicle === "moto";
+  $("#bkExtrasNote").textContent = moto
+    ? "Os adicionais são para carros e jet ski. Para a moto, é só seguir."
+    : "Opcional. Pode seguir sem marcar nada.";
+  $("#bkExtras").style.display = moto ? "none" : "";
+}
+
+function setVehicle(vehicle) {
+  if (state.vehicle === vehicle) return;
+  state.vehicle = vehicle;
+  state.service = null;
+  state.size = null;
+  state.extras = [];
+  $$("#bkExtras input").forEach((i) => { i.checked = false; });
+  $$("#bkVehicle button").forEach((b) => b.classList.toggle("is-active", b.dataset.vehicle === vehicle));
+  $("#bkSizeTitle").style.display = "";
+  $("#bkSizes").style.display = "";
+  renderServiceChoices();
+  renderSizeChoices();
+  renderExtraChoices();
+  updateSummary();
+}
+
+function renderBookingOptions() {
+  renderServiceChoices();
+  renderSizeChoices();
   $("#bkExtras").innerHTML = EXTRAS.map((x) => `
     <label class="choice">
       <input type="checkbox" name="extra" value="${x.id}">
       <span class="choice__name">${x.name}</span>
       <span class="choice__price">+ ${brlShort(x.price)}</span>
     </label>`).join("");
+  renderExtraChoices();
 
+  $$("#bkVehicle button").forEach((b) => b.addEventListener("click", () => { setVehicle(b.dataset.vehicle); clearError(); }));
   $("#bkServices").addEventListener("change", (e) => {
     state.service = e.target.value;
     const needsSize = state.service !== ONLY_EXTRAS;
     $("#bkSizeTitle").style.display = needsSize ? "" : "none";
     $("#bkSizes").style.display = needsSize ? "" : "none";
-    if (!needsSize) state.size = null;
+    const s = getService();
+    if (!needsSize || (s && state.size && !s.prices[state.size])) state.size = null;
+    renderSizeChoices();
     state.time = null;
     clearError();
     updateSummary();
@@ -380,8 +513,8 @@ function initDateTime() {
 
 function updateSummary() {
   const s = getService();
-  $("#sService").textContent = state.service === ONLY_EXTRAS ? "Só serviços adicionais" : s ? serviceTitle(s) : "-";
-  $("#sSize").textContent = state.size ? `${state.size} - ${SIZES[state.size].label}` : "-";
+  $("#sService").textContent = state.service === ONLY_EXTRAS ? "Só serviços adicionais" : s ? fullTitle(s) : "-";
+  $("#sSize").textContent = state.size ? `${state.size} - ${sizeLabel(state.vehicle, state.size)}` : "-";
   $("#sExtras").textContent = state.extras.length
     ? state.extras.map((id) => EXTRAS.find((x) => x.id === id).name).join(", ")
     : "Nenhum";
@@ -415,7 +548,7 @@ function validateStep(step) {
       el.classList.toggle("is-invalid", !valid);
       if (!valid) ok = false;
     });
-    if (!ok) return "Preencha nome, WhatsApp e modelo do carro.";
+    if (!ok) return `Preencha nome, WhatsApp e modelo ${state.vehicle === "moto" ? "da moto" : "do carro"}.`;
   }
   return "";
 }
@@ -439,14 +572,14 @@ function goTo(step, scroll = true) {
 }
 
 function buildMessage(a) {
-  const s = SERVICES.find((x) => x.id === a.service);
+  const s = findService(a.service);
   const lines = [
     "Olá, DM Estética Automotiva! Quero confirmar meu agendamento:",
     "",
     `Protocolo: ${a.code}`,
-    `Serviço: ${s ? serviceTitle(s) : "Só serviços adicionais"}`
+    `Serviço: ${s ? fullTitle(s) : "Só serviços adicionais"}`
   ];
-  if (a.size) lines.push(`Porte: ${a.size} (${SIZES[a.size].label})`);
+  if (a.size) lines.push(`Porte: ${a.size} (${sizeLabel(a.vehicle, a.size)})`);
   if (a.extras.length) lines.push(`Adicionais: ${a.extras.map((id) => EXTRAS.find((x) => x.id === id).name).join(", ")}`);
   lines.push(
     `Data: ${formatDate(a.date)} às ${a.time}`,
@@ -469,6 +602,7 @@ function confirmBooking() {
     code: `DM-${String(Date.now()).slice(-5)}`,
     date: state.date,
     time: state.time,
+    vehicle: state.vehicle,
     service: state.service,
     size: state.size,
     extras: [...state.extras],
@@ -495,6 +629,9 @@ function confirmBooking() {
 function resetBooking() {
   Object.assign(state, { step: 1, service: null, size: null, extras: [], date: null, time: null });
   $("#bookingForm").reset();
+  const v = state.vehicle;
+  state.vehicle = null;
+  setVehicle(v || "carro");
   $$(".field input").forEach((i) => i.classList.remove("is-invalid"));
   $("#bkSizes").style.display = "";
   $("#bkSizeTitle").style.display = "";
@@ -506,12 +643,11 @@ function resetBooking() {
 
 function preselect(serviceId, size) {
   resetBooking();
-  const input = $(`#bkServices input[value="${serviceId}"]`);
-  const sizeInput = $(`#bkSizes input[value="${size}"]`);
-  if (input) input.checked = true;
-  if (sizeInput) sizeInput.checked = true;
+  setVehicle(vehicleOf(serviceId));
   state.service = serviceId;
   state.size = size;
+  renderServiceChoices();
+  renderSizeChoices();
   updateSummary();
   goTo(2);
 }
@@ -550,14 +686,14 @@ function renderPanel() {
   const box = $("#panelList");
   if (!list.length) { box.innerHTML = `<p class="panel__empty">Nenhum agendamento por enquanto.</p>`; return; }
   box.innerHTML = list.map((a) => {
-    const s = SERVICES.find((x) => x.id === a.service);
+    const s = findService(a.service);
     const d = fromIso(a.date);
     return `
       <div class="appt">
         <div class="appt__date"><strong>${pad(d.getDate())}/${pad(d.getMonth() + 1)}</strong><span>${WEEK[d.getDay()]} ${a.time}</span></div>
         <div class="appt__info">
           <strong>${a.name}${a.demo ? " <small>exemplo</small>" : ""}</strong>
-          <span>${s ? serviceTitle(s) : "Só serviços adicionais"}${a.size ? ` &middot; Porte ${a.size}` : ""} &middot; ${a.car} &middot; ${a.phone}</span>
+          <span>${s ? fullTitle(s) : "Só serviços adicionais"}${a.size ? ` &middot; Porte ${a.size}` : ""} &middot; ${a.car} &middot; ${a.phone}</span>
         </div>
         <div class="appt__side"><b>${brl(a.total)}</b><button type="button" class="appt__del" data-del="${a.id}">Cancelar</button></div>
       </div>`;
@@ -617,6 +753,21 @@ function initReveal() {
   items.forEach((el) => io.observe(el));
 }
 
+function initReels() {
+  const vids = $$("video[data-src]");
+  const start = (v) => {
+    if (!v.src) { v.src = v.dataset.src; v.load(); }
+    v.play().catch(() => {});
+  };
+  vids.forEach((v) => v.addEventListener("pause", () => { if (v.src) setTimeout(() => v.play().catch(() => {}), 50); }));
+  if (!("IntersectionObserver" in window)) { vids.forEach(start); return; }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => { if (en.isIntersecting) { start(en.target); io.unobserve(en.target); } });
+  }, { rootMargin: "400px 0px" });
+  vids.forEach((v) => io.observe(v));
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) vids.forEach((v) => v.src && v.play().catch(() => {})); });
+}
+
 function initFloat() {
   const btn = $(".wa-float");
   const targets = [$("#agendar"), $(".footer")];
@@ -657,6 +808,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initHero();
   initReveal();
   initFloat();
+  initReels();
   initServices();
   initBooking();
   initPanel();
