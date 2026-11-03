@@ -196,7 +196,7 @@ input, textarea { font: inherit; letter-spacing: inherit; }
   text-shadow: 0 2px 20px rgba(0, 0, 0, .5);
 }
 .hero__title {
-  font-size: clamp(3rem, min(10vw, 13vh), 8.5rem);
+  font-size: clamp(3rem, min(9.4vw, 15vh), 8.5rem);
   font-weight: 700;
   line-height: 1.02;
   letter-spacing: -.05em;
@@ -224,90 +224,8 @@ input, textarea { font: inherit; letter-spacing: inherit; }
   gap: 14px 30px;
   margin-top: 34px;
 }
-.hero__toggle {
-  position: absolute;
-  z-index: 3;
-  right: 24px;
-  bottom: 24px;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .14);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: #fff;
-  transition: background .2s;
-}
-.hero__toggle:hover { background: rgba(255, 255, 255, .24); }
-.hero__toggle .i-play { display: none; }
-.hero__toggle.is-paused .i-play { display: block; }
-.hero__toggle.is-paused .i-pause { display: none; }
 
 .specs { background: #000; }
-
-@media (orientation: landscape) and (min-width: 900px) {
-  .hero { justify-content: flex-start; padding: 96px 0 64px; }
-  .hero__bg::before {
-    content: "";
-    position: absolute;
-    inset: -80px;
-    background: url("assets/hero-lancer-hd-poster.jpg") center / cover;
-    filter: blur(60px) brightness(.4) saturate(1.3);
-  }
-  .hero__bg video {
-    position: absolute;
-    z-index: 2;
-    top: 50%;
-    right: max(24px, calc((100% - 1120px) / 2));
-    width: auto;
-    height: min(calc(100vh - 150px), 780px);
-    aspect-ratio: 9 / 16;
-    border-radius: 28px;
-    transform: translateY(calc(-50% + 24px));
-    box-shadow: 0 40px 120px rgba(0, 0, 0, .7), 0 0 0 1px rgba(255, 255, 255, .08);
-  }
-  .hero__bg::after {
-    z-index: 1;
-    background:
-      radial-gradient(ellipse 50% 60% at 75% 55%, rgba(231, 40, 47, .22), transparent 70%),
-      linear-gradient(180deg, rgba(0, 0, 0, .2) 0%, rgba(0, 0, 0, 0) 60%, #000 100%);
-  }
-  .hero__intro { text-align: left; padding-right: calc(min(calc(100vh - 150px), 780px) * 9 / 16 + 48px); }
-  .hero__lead { margin-left: 0; }
-  .hero__ctas { justify-content: flex-start; }
-  .hero__title { font-size: clamp(3rem, min(7.4vw, 14vh), 7rem); }
-}
-.hero__specs {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
-  padding: clamp(56px, 7vw, 88px) 0 clamp(80px, 10vw, 120px);
-}
-.hero__specs li:nth-child(2) { transition-delay: .08s; }
-.hero__specs li:nth-child(3) { transition-delay: .16s; }
-.hero__specs li:nth-child(4) { transition-delay: .24s; }
-.hero__specs strong {
-  display: block;
-  font-size: clamp(2rem, 3.4vw, 2.9rem);
-  font-weight: 600;
-  letter-spacing: -.04em;
-  line-height: 1.1;
-  background: linear-gradient(180deg, #fff, #9a9aa0);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-.hero__specs span {
-  display: block;
-  max-width: 22ch;
-  margin: 8px auto 0;
-  font-size: .95rem;
-  line-height: 1.4;
-  color: var(--muted);
-}
 
 /* services */
 .services { background: var(--bg-2); }
@@ -936,7 +854,6 @@ input, textarea { font: inherit; letter-spacing: inherit; }
   .hero__bg::after {
     background: linear-gradient(180deg, rgba(0, 0, 0, .45) 0%, rgba(0, 0, 0, 0) 18%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .75) 68%, #000 100%);
   }
-  .hero__toggle { left: 20px; right: auto; bottom: 20px; }
 
   .services__grid .card { flex-basis: 100%; }
   .card { padding: 34px 24px 28px; }

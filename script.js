@@ -586,7 +586,6 @@ function initHero() {
   const hero = $(".hero");
   const header = $(".header");
   const video = $("#heroVideo");
-  const toggle = $("#heroToggle");
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let ticking = false;
   const update = () => {
@@ -600,14 +599,11 @@ function initHero() {
   }, { passive: true });
   update();
 
-  if (reduce) { video.pause(); toggle.classList.add("is-paused"); }
-  toggle.addEventListener("click", () => {
-    const paused = !video.paused;
-    if (paused) { video.pause(); video.dataset.userPaused = "1"; }
-    else { video.play().catch(() => {}); delete video.dataset.userPaused; }
-    toggle.classList.toggle("is-paused", paused);
-    toggle.setAttribute("aria-label", paused ? "Reproduzir vídeo" : "Pausar vídeo");
-  });
+  const keepPlaying = () => { if (video.paused) video.play().catch(() => {}); };
+  video.addEventListener("pause", () => setTimeout(keepPlaying, 50));
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) keepPlaying(); });
+  window.addEventListener("touchstart", keepPlaying, { once: true, passive: true });
+  keepPlaying();
 }
 
 function initReveal() {
@@ -619,18 +615,6 @@ function initReveal() {
     });
   }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
   items.forEach((el) => io.observe(el));
-}
-
-function initMedia() {
-  if (!("IntersectionObserver" in window)) return;
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((en) => {
-      const v = en.target;
-      if (en.isIntersecting) { if (!v.dataset.userPaused) v.play().catch(() => {}); }
-      else v.pause();
-    });
-  }, { threshold: 0.05 });
-  $$("video").forEach((v) => io.observe(v));
 }
 
 function initFloat() {
@@ -672,7 +656,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initNav();
   initHero();
   initReveal();
-  initMedia();
   initFloat();
   initServices();
   initBooking();
