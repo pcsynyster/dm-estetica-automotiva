@@ -185,51 +185,72 @@ const Store = {
 /* serviços */
 let currentSize = "P";
 let currentFilter = "lavagem";
+const brlShort = (v) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
 function renderServices() {
-  const grid = $("#servicesGrid");
   const list = SERVICES.filter((s) => currentFilter === "todos" || s.type === currentFilter);
-  grid.innerHTML = list.map((s) => {
-    const visible = 5;
-    const items = s.items.map((it, i) => `<li class="${i >= visible ? "is-hidden" : ""}">${it}</li>`).join("");
-    const more = s.items.length > visible ? `<button type="button" class="card__more" data-more>Ver todos os ${s.items.length} itens</button>` : "";
-    return `
-      <article class="card ${s.tag ? "is-featured" : ""}">
-        ${s.tag ? `<span class="card__tag">${s.tag}</span>` : ""}
-        <span class="card__kind">${s.type === "lavagem" ? "Lavagem" : "Tratamento"}</span>
-        <h3 class="card__name">${s.name} <em>${s.highlight}</em></h3>
-        <p class="card__sub">${s.sub}</p>
-        <ul class="card__list">${items}</ul>
-        ${more}
-        <div class="card__price"><small>Porte ${currentSize}</small><strong>${brl(s.prices[currentSize])}</strong></div>
-        <a href="#agendar" class="btn btn--red" data-book="${s.id}">Agendar este</a>
-      </article>`;
-  }).join("");
-  $("#sizeHint").textContent = `${SIZES[currentSize].label}: ${SIZES[currentSize].examples}`;
+  $("#servicesGrid").innerHTML = list.map((s) => `
+    <article class="card ${s.tag ? "is-featured" : ""}" data-id="${s.id}">
+      ${s.tag ? `<span class="card__tag">${s.tag}</span>` : ""}
+      <p class="card__kind">${s.type === "lavagem" ? "Lavagem" : "Tratamento"}</p>
+      <h3 class="card__name">${serviceTitle(s)}</h3>
+      <p class="card__sub">${s.sub}</p>
+      <p class="card__price"><span>Porte ${currentSize}</span><strong>${brlShort(s.prices[currentSize])}</strong></p>
+      <div class="card__ctas">
+        <a href="#agendar" class="pill" data-book="${s.id}">Agendar</a>
+        <button type="button" class="card__more" data-more aria-expanded="false">O que está incluso</button>
+      </div>
+      <div class="card__list"><ul>${s.items.map((it) => `<li>${it}</li>`).join("")}</ul></div>
+    </article>`).join("");
+  updateSizeHint();
+}
+
+function updateSizeHint() {
+  $("#sizeHint").textContent = `Porte ${currentSize}: ${SIZES[currentSize].examples}`;
+}
+
+function updatePrices() {
+  $$("#servicesGrid .card").forEach((card) => {
+    const s = SERVICES.find((x) => x.id === card.dataset.id);
+    const strong = card.querySelector(".card__price strong");
+    strong.classList.add("is-changing");
+    setTimeout(() => {
+      strong.textContent = brlShort(s.prices[currentSize]);
+      card.querySelector(".card__price span").textContent = `Porte ${currentSize}`;
+      strong.classList.remove("is-changing");
+    }, 180);
+  });
+  updateSizeHint();
 }
 
 function initServices() {
   $$(".tab").forEach((t) => t.addEventListener("click", () => {
-    $$(".tab").forEach((x) => x.classList.toggle("is-active", x === t));
+    if (t.classList.contains("is-active")) return;
+    $$(".tab").forEach((x) => {
+      x.classList.toggle("is-active", x === t);
+      x.setAttribute("aria-selected", x === t);
+    });
     currentFilter = t.dataset.filter;
     renderServices();
   }));
   $$("#sizePicker button").forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.size === currentSize) return;
     $$("#sizePicker button").forEach((x) => x.classList.toggle("is-active", x === b));
     currentSize = b.dataset.size;
-    renderServices();
+    updatePrices();
   }));
   $("#servicesGrid").addEventListener("click", (e) => {
     const more = e.target.closest("[data-more]");
     if (more) {
       const card = more.closest(".card");
-      card.classList.toggle("is-open");
-      more.textContent = card.classList.contains("is-open") ? "Ver menos" : `Ver todos os ${card.querySelectorAll("li").length} itens`;
+      const open = card.classList.toggle("is-open");
+      more.textContent = open ? "Ocultar itens" : "O que está incluso";
+      more.setAttribute("aria-expanded", open);
     }
     const book = e.target.closest("[data-book]");
-    if (book) preselect(book.dataset.book, currentSize);
+    if (book) { e.preventDefault(); preselect(book.dataset.book, currentSize); }
   });
-  $("#extrasList").innerHTML = EXTRAS.map((x) => `<li><span>${x.name}</span><strong>${brl(x.price)}</strong></li>`).join("");
+  $("#extrasList").innerHTML = EXTRAS.map((x) => `<li><span>${x.name}</span><strong>${brlShort(x.price)}</strong></li>`).join("");
   renderServices();
 }
 
@@ -250,7 +271,7 @@ function renderBookingOptions() {
     <label class="choice">
       <input type="radio" name="service" value="${s.id}">
       <span class="choice__name">${serviceTitle(s)}<small>${s.sub}</small></span>
-      <span class="choice__price">a partir de ${brl(s.prices.P)}</span>
+      <span class="choice__price">${brlShort(s.prices.P)}+</span>
     </label>`).join("");
   const avulso = `
     <label class="choice">
@@ -264,20 +285,20 @@ function renderBookingOptions() {
     <label class="choice">
       <input type="radio" name="size" value="${k}">
       <span class="choice__name">${k}</span>
-      <span class="choice__price" style="font-family:var(--body);font-size:.8rem;font-weight:500;white-space:normal">${v.examples}</span>
+      <span class="choice__price">${v.examples}</span>
     </label>`).join("");
 
   $("#bkExtras").innerHTML = EXTRAS.map((x) => `
     <label class="choice">
       <input type="checkbox" name="extra" value="${x.id}">
       <span class="choice__name">${x.name}</span>
-      <span class="choice__price">+ ${brl(x.price)}</span>
+      <span class="choice__price">+ ${brlShort(x.price)}</span>
     </label>`).join("");
 
   $("#bkServices").addEventListener("change", (e) => {
     state.service = e.target.value;
     const needsSize = state.service !== ONLY_EXTRAS;
-    $("#bkSizes").previousElementSibling.style.display = needsSize ? "" : "none";
+    $("#bkSizeTitle").style.display = needsSize ? "" : "none";
     $("#bkSizes").style.display = needsSize ? "" : "none";
     if (!needsSize) state.size = null;
     state.time = null;
@@ -367,6 +388,7 @@ function updateSummary() {
   $("#sDate").textContent = state.date ? formatDate(state.date) : "-";
   $("#sTime").textContent = state.time || "-";
   $("#sTotal").textContent = brl(calcTotal());
+  $("#sTotalMini").textContent = brl(calcTotal());
 }
 
 function showError(msg) { $("#formError").textContent = msg; }
@@ -398,7 +420,7 @@ function validateStep(step) {
   return "";
 }
 
-function goTo(step) {
+function goTo(step, scroll = true) {
   state.step = step;
   $$(".step").forEach((f) => f.classList.toggle("is-active", Number(f.dataset.step) === step));
   $$("#stepsNav li").forEach((li) => {
@@ -410,6 +432,10 @@ function goTo(step) {
   $("#btnNext").textContent = step === 4 ? "Confirmar agendamento" : "Continuar";
   if (step === 3) { renderDays(); renderSlots(); }
   clearError();
+  const top = $("#bookingForm").getBoundingClientRect().top;
+  if (scroll && (top < 0 || top > window.innerHeight * 0.6)) {
+    window.scrollTo({ top: window.scrollY + top - 72, behavior: "smooth" });
+  }
 }
 
 function buildMessage(a) {
@@ -471,11 +497,11 @@ function resetBooking() {
   $("#bookingForm").reset();
   $$(".field input").forEach((i) => i.classList.remove("is-invalid"));
   $("#bkSizes").style.display = "";
-  $("#bkSizes").previousElementSibling.style.display = "";
+  $("#bkSizeTitle").style.display = "";
   $("#success").hidden = true;
   $(".booking__wrap").hidden = false;
   updateSummary();
-  goTo(1);
+  goTo(1, false);
 }
 
 function preselect(serviceId, size) {
@@ -487,6 +513,7 @@ function preselect(serviceId, size) {
   state.service = serviceId;
   state.size = size;
   updateSummary();
+  goTo(2);
 }
 
 function phoneMask(e) {
@@ -509,6 +536,10 @@ function initBooking() {
     else confirmBooking();
   });
   $("#btnBack").addEventListener("click", () => state.step > 1 && goTo(state.step - 1));
+  $("#stepsNav").addEventListener("click", (e) => {
+    const li = e.target.closest("li");
+    if (li && Number(li.dataset.step) < state.step) goTo(Number(li.dataset.step));
+  });
   $("#btnNew").addEventListener("click", resetBooking);
   updateSummary();
 }
@@ -525,7 +556,7 @@ function renderPanel() {
       <div class="appt">
         <div class="appt__date"><strong>${pad(d.getDate())}/${pad(d.getMonth() + 1)}</strong><span>${WEEK[d.getDay()]} ${a.time}</span></div>
         <div class="appt__info">
-          <strong>${a.name}${a.demo ? " <small style='color:var(--gold);font-weight:600'>(exemplo)</small>" : ""}</strong>
+          <strong>${a.name}${a.demo ? " <small>exemplo</small>" : ""}</strong>
           <span>${s ? serviceTitle(s) : "Só adicionais"}${a.size ? ` &middot; Porte ${a.size}` : ""} &middot; ${a.car} &middot; ${a.phone}</span>
         </div>
         <div class="appt__side"><b>${brl(a.total)}</b><button type="button" class="appt__del" data-del="${a.id}">Cancelar</button></div>
@@ -569,21 +600,59 @@ function initHeroStage() {
   update();
 }
 
+function initReveal() {
+  const items = $$(".reveal");
+  if (!("IntersectionObserver" in window)) { items.forEach((el) => el.classList.add("is-visible")); return; }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (en.isIntersecting) { en.target.classList.add("is-visible"); io.unobserve(en.target); }
+    });
+  }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+  items.forEach((el) => io.observe(el));
+}
+
+function initMedia() {
+  if (!("IntersectionObserver" in window)) return;
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      const v = en.target;
+      if (en.isIntersecting) v.play().catch(() => {});
+      else v.pause();
+    });
+  }, { threshold: 0.05 });
+  $$("video").forEach((v) => io.observe(v));
+}
+
+function initFloat() {
+  const btn = $(".wa-float");
+  const targets = [$("#agendar"), $(".footer")];
+  if (!("IntersectionObserver" in window)) return;
+  const visible = new Set();
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => en.isIntersecting ? visible.add(en.target) : visible.delete(en.target));
+    btn.classList.toggle("is-hidden", visible.size > 0);
+  }, { threshold: 0.15 });
+  targets.forEach((t) => io.observe(t));
+}
+
 /* menu */
 function initNav() {
   const toggle = $("#navToggle");
   const nav = $("#nav");
-  toggle.addEventListener("click", () => {
-    const open = nav.classList.toggle("is-open");
+  const setOpen = (open) => {
+    nav.classList.toggle("is-open", open);
     toggle.classList.toggle("is-open", open);
     toggle.setAttribute("aria-expanded", open);
-  });
-  $$("#nav a").forEach((a) => a.addEventListener("click", () => {
-    nav.classList.remove("is-open");
-    toggle.classList.remove("is-open");
-    toggle.setAttribute("aria-expanded", "false");
-  }));
+    toggle.setAttribute("aria-label", open ? "Fechar menu" : "Abrir menu");
+    document.body.style.overflow = open ? "hidden" : "";
+  };
+  toggle.addEventListener("click", () => setOpen(!nav.classList.contains("is-open")));
+  $$("#nav a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && nav.classList.contains("is-open")) setOpen(false); });
+  window.addEventListener("resize", () => { if (window.innerWidth > 760 && nav.classList.contains("is-open")) setOpen(false); });
 }
+
+document.documentElement.classList.add("js");
 
 document.addEventListener("DOMContentLoaded", () => {
   try { if (!localStorage.getItem(CONFIG.storageKey)) Store.seed(); } catch {}
@@ -591,6 +660,9 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#hoursText").innerHTML = CONFIG.hoursText;
   initNav();
   initHeroStage();
+  initReveal();
+  initMedia();
+  initFloat();
   initServices();
   initBooking();
   initPanel();
