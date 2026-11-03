@@ -2,18 +2,23 @@ const CONFIG = {
   whatsapp: "558498961905",
   storageKey: "dm_agendamentos",
   daysAhead: 14,
-  hours: {
-    0: null,
-    1: ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"],
-    2: ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"],
-    3: ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"],
-    4: ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"],
-    5: ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"],
-    6: ["08:00", "09:00", "10:00", "11:00"]
+  days: {
+    0: [],
+    1: ["manha", "tarde"],
+    2: ["manha", "tarde"],
+    3: ["manha", "tarde"],
+    4: ["manha", "tarde"],
+    5: ["manha", "tarde"],
+    6: ["manha"]
   },
-  hoursText: "Segunda a sexta, das 8h às 17h &middot; Sábado, das 8h às 12h",
-  treatmentSlots: ["08:00", "09:00"]
+  shifts: {
+    manha: { label: "Manhã", range: "8h às 12h", end: 12 },
+    tarde: { label: "Tarde", range: "13h às 17h", end: 17 }
+  },
+  hoursText: "Segunda a sexta, das 8h às 17h &middot; Sábado, das 8h às 12h"
 };
+
+const shiftText = (key) => CONFIG.shifts[key] ? `${CONFIG.shifts[key].label} (${CONFIG.shifts[key].range})` : key;
 
 const SIZES = {
   carro: {
@@ -235,19 +240,18 @@ const Store = {
   },
   add(item) { const list = Store.all(); list.push(item); Store.save(list); },
   remove(id) { Store.save(Store.all().filter((a) => a.id !== id)); },
-  isTaken(date, time) { return Store.all().some((a) => a.date === date && a.time === time); },
   seed() {
     const base = new Date();
     const next = (offset) => {
       const d = new Date(base);
       d.setDate(d.getDate() + offset);
-      while (!CONFIG.hours[d.getDay()]) d.setDate(d.getDate() + 1);
+      while (!CONFIG.days[d.getDay()].length) d.setDate(d.getDate() + 1);
       return isoDate(d);
     };
     Store.save([
-      { id: "demo1", code: "DM-1001", demo: true, date: next(1), time: "09:00", service: "premium", size: "M", extras: [], name: "Rafael Souza", phone: "(84) 9 9999-0001", car: "Corolla prata", total: 170 },
-      { id: "demo2", code: "DM-1002", demo: true, date: next(1), time: "14:00", service: "completa", size: "P", extras: ["motor"], name: "Ana Lima", phone: "(84) 9 9999-0002", car: "HB20 branco", total: 160 },
-      { id: "demo3", code: "DM-1003", demo: true, date: next(2), time: "08:00", service: "protection", size: "G", extras: [], name: "Carlos Mendes", phone: "(84) 9 9999-0003", car: "SW4 preta", total: 1500 }
+      { id: "demo1", code: "DM-1001", demo: true, date: next(1), time: "manha", service: "premium", size: "M", extras: [], name: "Rafael Souza", phone: "(84) 9 9999-0001", car: "Corolla prata", total: 170 },
+      { id: "demo2", code: "DM-1002", demo: true, date: next(1), time: "tarde", service: "completa", size: "P", extras: ["motor"], name: "Ana Lima", phone: "(84) 9 9999-0002", car: "HB20 branco", total: 160 },
+      { id: "demo3", code: "DM-1003", demo: true, date: next(2), time: "manha", service: "protection", size: "G", extras: [], name: "Carlos Mendes", phone: "(84) 9 9999-0003", car: "SW4 preta", total: 1500 }
     ]);
   }
 };
@@ -446,12 +450,10 @@ function renderBookingOptions() {
   });
 }
 
-function availableSlots(iso) {
-  const d = fromIso(iso);
-  let slots = CONFIG.hours[d.getDay()] || [];
-  const s = getService();
-  if (s && s.type === "tratamento") slots = slots.filter((t) => CONFIG.treatmentSlots.includes(t));
-  return slots;
+function availableShifts(iso) {
+  const now = new Date();
+  const isToday = iso === isoDate(now);
+  return (CONFIG.days[fromIso(iso).getDay()] || []).filter((k) => !isToday || now.getHours() < CONFIG.shifts[k].end - 1);
 }
 
 function renderDays() {
@@ -462,7 +464,7 @@ function renderDays() {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const iso = isoDate(d);
-    const closed = !CONFIG.hours[d.getDay()];
+    const closed = !availableShifts(iso).length;
     const label = i === 0 ? "Hoje" : WEEK[d.getDay()];
     html += `<button type="button" class="day ${state.date === iso ? "is-active" : ""}" data-date="${iso}" ${closed ? "disabled" : ""}>
       <span>${label}</span><strong>${pad(d.getDate())}</strong><small>${closed ? "Fechado" : MONTHS[d.getMonth()]}</small>
@@ -473,21 +475,14 @@ function renderDays() {
 
 function renderSlots() {
   const wrap = $("#bkSlots");
-  const s = getService();
-  $("#bkSlotNote").textContent = s && s.type === "tratamento"
-    ? "Tratamentos exigem o veículo no estúdio durante o dia. Entrada pela manhã; o prazo de entrega é combinado com a equipe."
-    : "Escolha o horário em que vai deixar o veículo.";
   if (!state.date) { wrap.innerHTML = `<p class="slots__empty">Selecione um dia acima.</p>`; return; }
-
-  const now = new Date();
-  const isToday = state.date === isoDate(now);
-  const slots = availableSlots(state.date);
-  wrap.innerHTML = slots.map((t) => {
-    const [h, m] = t.split(":").map(Number);
-    const past = isToday && (h * 60 + m) <= (now.getHours() * 60 + now.getMinutes() + 30);
-    const taken = Store.isTaken(state.date, t);
-    return `<button type="button" class="slot ${state.time === t ? "is-active" : ""}" data-time="${t}" ${past || taken ? "disabled" : ""} title="${taken ? "Horário ocupado" : ""}">${t}</button>`;
-  }).join("") || `<p class="slots__empty">Sem horários neste dia.</p>`;
+  const open = availableShifts(state.date);
+  wrap.innerHTML = Object.entries(CONFIG.shifts).map(([k, v]) => {
+    const off = !open.includes(k);
+    return `<button type="button" class="shift ${state.time === k ? "is-active" : ""}" data-time="${k}" ${off ? "disabled" : ""}>
+      <strong>${v.label}</strong><span>${off ? "Indisponível" : v.range}</span>
+    </button>`;
+  }).join("");
 }
 
 function initDateTime() {
@@ -495,14 +490,14 @@ function initDateTime() {
     const b = e.target.closest(".day");
     if (!b || b.disabled) return;
     state.date = b.dataset.date;
-    state.time = null;
+    if (!availableShifts(state.date).includes(state.time)) state.time = null;
     renderDays();
     renderSlots();
     clearError();
     updateSummary();
   });
   $("#bkSlots").addEventListener("click", (e) => {
-    const b = e.target.closest(".slot");
+    const b = e.target.closest(".shift");
     if (!b || b.disabled) return;
     state.time = b.dataset.time;
     renderSlots();
@@ -519,7 +514,7 @@ function updateSummary() {
     ? state.extras.map((id) => EXTRAS.find((x) => x.id === id).name).join(", ")
     : "Nenhum";
   $("#sDate").textContent = state.date ? formatDate(state.date) : "-";
-  $("#sTime").textContent = state.time || "-";
+  $("#sTime").textContent = state.time ? shiftText(state.time) : "-";
   $("#sTotal").textContent = brl(calcTotal());
   $("#sTotalMini").textContent = brl(calcTotal());
 }
@@ -537,7 +532,7 @@ function validateStep(step) {
   }
   if (step === 3) {
     if (!state.date) return "Escolha o dia do atendimento.";
-    if (!state.time) return "Escolha um horário disponível.";
+    if (!state.time) return "Escolha o turno: manhã ou tarde.";
   }
   if (step === 4) {
     const fields = [["#fName", (v) => v.trim().length >= 2], ["#fPhone", (v) => v.replace(/\D/g, "").length >= 10], ["#fCar", (v) => v.trim().length >= 2]];
@@ -582,7 +577,8 @@ function buildMessage(a) {
   if (a.size) lines.push(`Porte: ${a.size} (${sizeLabel(a.vehicle, a.size)})`);
   if (a.extras.length) lines.push(`Adicionais: ${a.extras.map((id) => EXTRAS.find((x) => x.id === id).name).join(", ")}`);
   lines.push(
-    `Data: ${formatDate(a.date)} às ${a.time}`,
+    `Dia: ${formatDate(a.date)}`,
+    `Turno: ${shiftText(a.time)}`,
     `Veículo: ${a.car}${a.plate ? ` - ${a.plate}` : ""}`,
     `Nome: ${a.name}`,
     `Total estimado: ${brl(a.total)}`
@@ -592,11 +588,6 @@ function buildMessage(a) {
 }
 
 function confirmBooking() {
-  if (Store.isTaken(state.date, state.time)) {
-    goTo(3);
-    showError("Esse horário acabou de ser reservado. Escolha outro, por favor.");
-    return;
-  }
   const appt = {
     id: String(Date.now()),
     code: `DM-${String(Date.now()).slice(-5)}`,
@@ -617,7 +608,7 @@ function confirmBooking() {
   Store.add(appt);
 
   const link = buildMessage(appt);
-  $("#successText").textContent = `${appt.name.split(" ")[0]}, seu horário de ${formatDate(appt.date)} às ${appt.time} está reservado. Envie a mensagem no WhatsApp para a equipe confirmar.`;
+  $("#successText").textContent = `${appt.name.split(" ")[0]}, seu pedido para ${formatDate(appt.date)}, no turno da ${CONFIG.shifts[appt.time].label.toLowerCase()}, foi registrado. Envie a mensagem no WhatsApp para a equipe confirmar.`;
   $("#successCode").textContent = appt.code;
   $("#successWa").href = link;
   $(".booking__wrap").hidden = true;
@@ -682,7 +673,8 @@ function initBooking() {
 
 /* painel demo */
 function renderPanel() {
-  const list = Store.all().sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const order = (t) => (t === "tarde" ? "2" : "1");
+  const list = Store.all().sort((a, b) => (a.date + order(a.time)).localeCompare(b.date + order(b.time)));
   const box = $("#panelList");
   if (!list.length) { box.innerHTML = `<p class="panel__empty">Nenhum agendamento por enquanto.</p>`; return; }
   box.innerHTML = list.map((a) => {
@@ -690,7 +682,7 @@ function renderPanel() {
     const d = fromIso(a.date);
     return `
       <div class="appt">
-        <div class="appt__date"><strong>${pad(d.getDate())}/${pad(d.getMonth() + 1)}</strong><span>${WEEK[d.getDay()]} ${a.time}</span></div>
+        <div class="appt__date"><strong>${pad(d.getDate())}/${pad(d.getMonth() + 1)}</strong><span>${WEEK[d.getDay()]} &middot; ${CONFIG.shifts[a.time] ? CONFIG.shifts[a.time].label : a.time}</span></div>
         <div class="appt__info">
           <strong>${a.name}${a.demo ? " <small>exemplo</small>" : ""}</strong>
           <span>${s ? fullTitle(s) : "Só serviços adicionais"}${a.size ? ` &middot; Porte ${a.size}` : ""} &middot; ${a.car} &middot; ${a.phone}</span>

@@ -673,6 +673,25 @@ input, textarea { font: inherit; letter-spacing: inherit; }
 .slot:hover:not(:disabled) { box-shadow: inset 0 0 0 1px #48484a; }
 .slot.is-active { background: var(--text); color: #000; box-shadow: none; }
 .slot:disabled { opacity: .28; cursor: not-allowed; text-decoration: line-through; }
+.shifts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.shifts .slots__empty { grid-column: 1 / -1; }
+.shift {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 18px 20px;
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 0 0 1px var(--line);
+  text-align: left;
+  transition: box-shadow .2s, background .2s, color .2s;
+}
+.shift strong { font-size: 1.2rem; font-weight: 600; letter-spacing: -.02em; }
+.shift span { font-size: .88rem; color: var(--muted); }
+.shift:hover:not(:disabled) { box-shadow: inset 0 0 0 1px #48484a; }
+.shift.is-active { background: var(--text); color: #000; box-shadow: none; }
+.shift.is-active span { color: #3a3a3c; }
+.shift:disabled { opacity: .3; cursor: not-allowed; }
 .slots__empty { grid-column: 1 / -1; color: var(--muted); font-size: .94rem; }
 
 .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

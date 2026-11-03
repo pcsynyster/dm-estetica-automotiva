@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -203,7 +203,7 @@
         <div class="section__head reveal">
           <p class="eyebrow">Agendamento</p>
           <h2 class="section__title">Reserve seu horário <br>em poucos toques.</h2>
-          <p class="section__sub">Escolha o serviço, o dia e a hora. A confirmação chega pelo WhatsApp.</p>
+          <p class="section__sub">Escolha o serviço, o dia e o turno. A confirmação chega pelo WhatsApp.</p>
         </div>
 
         <div class="booking__wrap">
@@ -211,7 +211,7 @@
             <ol class="steps" id="stepsNav">
               <li class="is-active" data-step="1"><span>Serviço</span></li>
               <li data-step="2"><span>Adicionais</span></li>
-              <li data-step="3"><span>Data e hora</span></li>
+              <li data-step="3"><span>Dia e turno</span></li>
               <li data-step="4"><span>Seus dados</span></li>
             </ol>
 
@@ -235,9 +235,9 @@
             <fieldset class="step" data-step="3">
               <legend>Quando fica melhor?</legend>
               <div class="days" id="bkDays"></div>
-              <h4 class="step__sub">Horário de entrada</h4>
-              <p class="step__note" id="bkSlotNote"></p>
-              <div class="slots" id="bkSlots"></div>
+              <h4 class="step__sub">Qual turno?</h4>
+              <p class="step__note">A equipe confirma o horário exato pelo WhatsApp.</p>
+              <div class="shifts" id="bkSlots"></div>
             </fieldset>
 
             <fieldset class="step" data-step="4">
@@ -282,7 +282,7 @@
               <div><dt>Porte</dt><dd id="sSize">-</dd></div>
               <div><dt>Adicionais</dt><dd id="sExtras">Nenhum</dd></div>
               <div><dt>Data</dt><dd id="sDate">-</dd></div>
-              <div><dt>Horário</dt><dd id="sTime">-</dd></div>
+              <div><dt>Turno</dt><dd id="sTime">-</dd></div>
             </dl>
             <div class="summary__total">
               <span>Total estimado</span>
@@ -296,7 +296,7 @@
           <div class="success__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" width="30" height="30"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </div>
-          <h3>Horário reservado.</h3>
+          <h3>Pedido enviado.</h3>
           <p id="successText"></p>
           <p class="success__code">Protocolo <strong id="successCode"></strong></p>
           <div class="success__ctas">
@@ -380,6 +380,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=14"></script>
+  <script src="script.js?v=15"></script>
 </body>
 </html>
