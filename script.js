@@ -11,14 +11,14 @@ const CONFIG = {
     5: ["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"],
     6: ["08:00", "09:00", "10:00", "11:00"]
   },
-  hoursText: "Segunda a sexta, 08h às 17h &middot; Sábado, 08h às 12h",
+  hoursText: "Segunda a sexta, das 8h às 17h &middot; Sábado, das 8h às 12h",
   treatmentSlots: ["08:00", "09:00"]
 };
 
 const SIZES = {
-  P: { label: "Pequeno", examples: "Hatches e compactos: Mobi, Onix, HB20, Polo" },
-  M: { label: "Médio", examples: "Sedãs e SUVs compactos: Corolla, Civic, Creta, T-Cross" },
-  G: { label: "Grande", examples: "SUVs grandes e picapes: SW4, Hilux, Ranger, Commander" }
+  P: { label: "Pequeno", examples: "Hatches e compactos, como Mobi, Onix, HB20 e Polo" },
+  M: { label: "Médio", examples: "Sedãs e SUVs compactos, como Corolla, Civic, Creta e T-Cross" },
+  G: { label: "Grande", examples: "SUVs grandes e picapes, como SW4, Hilux, Ranger e Commander" }
 };
 
 const SERVICES = [
@@ -27,11 +27,11 @@ const SERVICES = [
     prices: { P: 80, M: 100, G: 120 },
     items: [
       "Lavagem externa com shampoo automotivo",
-      "Limpeza de rodas e caixas",
-      "Aspiração interna, tapetes e painel",
+      "Limpeza simples das rodas e caixas de roda",
+      "Aspiração interna e limpeza dos tapetes e do painel",
       "Selagem dos pneus",
       "Revitalização dos plásticos internos e externos",
-      "Selagem na pintura com brilho e proteção"
+      "Selagem da pintura com brilho e proteção"
     ]
   },
   {
@@ -40,24 +40,24 @@ const SERVICES = [
     items: [
       "Lavagem externa detalhada",
       "Limpeza e condicionamento das caixas de roda",
-      "Emblemas, cantos e frisos detalhados",
+      "Limpeza detalhada de emblemas, cantos e frisos",
       "Remoção de piche",
       "Descontaminação com claybar",
       "Descontaminação ferrosa das rodas",
       "Aspiração interna e limpeza dos tapetes",
       "Selagem dos pneus",
-      "Plásticos internos com bactericida (portas, painel e colunas)",
+      "Limpeza dos plásticos internos com bactericida (portas, painel e colunas)",
       "Revitalização dos plásticos internos e externos",
       "Cera em pasta de carnaúba com proteção de 4 meses"
     ]
   },
   {
-    id: "couro", type: "lavagem", name: "Lavagem", highlight: "Couro", sub: "Para carros com bancos em couro",
+    id: "couro", type: "lavagem", name: "Lavagem", highlight: "para Couro", sub: "Para carros com bancos em couro",
     prices: { P: 200, M: 220, G: 240 },
     items: [
       "Tudo da Lavagem Premium",
       "Higienização e hidratação do couro",
-      "Plásticos internos com bactericida",
+      "Limpeza dos plásticos internos com bactericida",
       "Cera em pasta de carnaúba com proteção de 4 meses"
     ]
   },
@@ -83,7 +83,7 @@ const SERVICES = [
       "Aspiração interna e limpeza dos tapetes",
       "Selagem dos pneus",
       "Polimento comercial: elimina 70% das imperfeições",
-      "Cera Blend All in One",
+      "Aplicação de cera Blend All in One",
       "Proteção da pintura por até 6 meses"
     ]
   },
@@ -97,21 +97,21 @@ const SERVICES = [
       "Revitalização dos plásticos internos e externos",
       "Hidratação do couro (se possuir)",
       "Polimento técnico ou cristalização de pintura",
-      "Aplicação de Sinergy Paint (coat spray)",
+      "Aplicação de Sinergy Paint (coating em spray)",
       "Proteção da pintura por até 12 meses"
     ]
   },
   {
-    id: "protection", type: "tratamento", name: "Protection", highlight: "Premium", sub: "Vitrificação completa de 3 anos",
+    id: "protection", type: "tratamento", name: "Protection", highlight: "Premium", sub: "Vitrificação completa com 3 anos de proteção",
     prices: { P: 1100, M: 1200, G: 1500 },
     items: [
       "Lavagem detalhada com descontaminação completa",
-      "Remoção de chuva ácida dos vidros",
+      "Remoção de manchas de chuva ácida dos vidros",
       "Polimento técnico: elimina o máximo de imperfeições",
-      "Coating nano cerâmico VX45 (alcance) na pintura",
+      "Coating nanocerâmico VX45 na pintura",
       "Alto brilho, repelência e proteção UV",
       "Durabilidade de 3 anos",
-      "Coating cerâmico V-Plastic (Vonixx) nos plásticos externos, até 1 ano"
+      "Coating cerâmico V-Plastic (Vonixx) nos plásticos externos, com até 1 ano de proteção"
     ]
   },
   {
@@ -119,14 +119,14 @@ const SERVICES = [
     prices: { P: 1500, M: 1700, G: 1800 },
     items: [
       "Lavagem detalhada com descontaminação completa",
-      "Remoção de chuva ácida dos vidros",
-      "Limpeza interna com bactericida e forro do teto",
-      "Hidratação do couro e higienização de bancos de tecido",
+      "Remoção de manchas de chuva ácida dos vidros",
+      "Limpeza interna com bactericida e limpeza do forro do teto",
+      "Hidratação do couro e higienização dos bancos de tecido (se possuir)",
       "Polimento técnico ou cristalização de pintura",
-      "Coating nano cerâmico VX45 com 3 anos de durabilidade",
+      "Coating nanocerâmico VX45 com 3 anos de durabilidade",
       "Cristalização e vitrificação dos faróis",
-      "Vitrificação dos plásticos externos V-Plastic (Vonixx)",
-      "Brinde aromático Areon"
+      "Vitrificação dos plásticos externos com V-Plastic (Vonixx)",
+      "Brinde: aromatizante Areon"
     ]
   }
 ];
@@ -136,9 +136,9 @@ const EXTRAS = [
   { id: "hidratacao", name: "Limpeza e hidratação do couro", price: 150 },
   { id: "motor", name: "Lavagem do motor", price: 80 },
   { id: "farol", name: "Restauração do farol", price: 170 },
-  { id: "jet-lav", name: "Lavagem de manutenção de jetski", price: 50 },
-  { id: "jet-pol", name: "Polimento técnico de jetski", price: 390 },
-  { id: "jet-vit", name: "Vitrificação completa de jetski (3 anos)", price: 650 }
+  { id: "jet-lav", name: "Lavagem de manutenção de jet ski", price: 50 },
+  { id: "jet-pol", name: "Polimento técnico de jet ski", price: 390 },
+  { id: "jet-vit", name: "Vitrificação completa de jet ski (3 anos)", price: 650 }
 ];
 
 const ONLY_EXTRAS = "avulso";
@@ -192,7 +192,7 @@ function renderServices() {
   $("#servicesGrid").innerHTML = list.map((s) => `
     <article class="card ${s.tag ? "is-featured" : ""}" data-id="${s.id}">
       ${s.tag ? `<span class="card__tag">${s.tag}</span>` : ""}
-      <p class="card__kind">${s.type === "lavagem" ? "Lavagem" : "Tratamento"}</p>
+      ${s.name === "Lavagem" || s.name === "Tratamento" ? "" : `<p class="card__kind">Tratamento</p>`}
       <h3 class="card__name">${serviceTitle(s)}</h3>
       <p class="card__sub">${s.sub}</p>
       <p class="card__price"><span>Porte ${currentSize}</span><strong>${brlShort(s.prices[currentSize])}</strong></p>
@@ -276,8 +276,8 @@ function renderBookingOptions() {
   const avulso = `
     <label class="choice">
       <input type="radio" name="service" value="${ONLY_EXTRAS}">
-      <span class="choice__name">Só serviço adicional<small>Motor, farol, bancos, jetski...</small></span>
-      <span class="choice__price">ver etapa 2</span>
+      <span class="choice__name">Só serviços adicionais<small>Motor, farol, bancos, jet ski e outros</small></span>
+      <span class="choice__price">na etapa 2</span>
     </label>`;
   $("#bkServices").innerHTML = opts + avulso;
 
@@ -380,7 +380,7 @@ function initDateTime() {
 
 function updateSummary() {
   const s = getService();
-  $("#sService").textContent = state.service === ONLY_EXTRAS ? "Só adicionais" : s ? serviceTitle(s) : "-";
+  $("#sService").textContent = state.service === ONLY_EXTRAS ? "Só serviços adicionais" : s ? serviceTitle(s) : "-";
   $("#sSize").textContent = state.size ? `${state.size} - ${SIZES[state.size].label}` : "-";
   $("#sExtras").textContent = state.extras.length
     ? state.extras.map((id) => EXTRAS.find((x) => x.id === id).name).join(", ")
@@ -444,7 +444,7 @@ function buildMessage(a) {
     "Olá, DM Estética Automotiva! Quero confirmar meu agendamento:",
     "",
     `Protocolo: ${a.code}`,
-    `Serviço: ${s ? serviceTitle(s) : "Só adicionais"}`
+    `Serviço: ${s ? serviceTitle(s) : "Só serviços adicionais"}`
   ];
   if (a.size) lines.push(`Porte: ${a.size} (${SIZES[a.size].label})`);
   if (a.extras.length) lines.push(`Adicionais: ${a.extras.map((id) => EXTRAS.find((x) => x.id === id).name).join(", ")}`);
@@ -557,7 +557,7 @@ function renderPanel() {
         <div class="appt__date"><strong>${pad(d.getDate())}/${pad(d.getMonth() + 1)}</strong><span>${WEEK[d.getDay()]} ${a.time}</span></div>
         <div class="appt__info">
           <strong>${a.name}${a.demo ? " <small>exemplo</small>" : ""}</strong>
-          <span>${s ? serviceTitle(s) : "Só adicionais"}${a.size ? ` &middot; Porte ${a.size}` : ""} &middot; ${a.car} &middot; ${a.phone}</span>
+          <span>${s ? serviceTitle(s) : "Só serviços adicionais"}${a.size ? ` &middot; Porte ${a.size}` : ""} &middot; ${a.car} &middot; ${a.phone}</span>
         </div>
         <div class="appt__side"><b>${brl(a.total)}</b><button type="button" class="appt__del" data-del="${a.id}">Cancelar</button></div>
       </div>`;
