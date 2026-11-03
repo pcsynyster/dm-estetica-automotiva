@@ -227,6 +227,37 @@ input, textarea { font: inherit; letter-spacing: inherit; }
 
 .specs { background: #000; }
 
+.hero__specs {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  padding: clamp(56px, 7vw, 88px) 0 clamp(80px, 10vw, 120px);
+  text-align: center;
+}
+.hero__specs li:nth-child(2) { transition-delay: .08s; }
+.hero__specs li:nth-child(3) { transition-delay: .16s; }
+.hero__specs li:nth-child(4) { transition-delay: .24s; }
+.hero__specs strong {
+  display: block;
+  font-size: clamp(2rem, 3.4vw, 2.9rem);
+  font-weight: 600;
+  letter-spacing: -.04em;
+  line-height: 1.1;
+  background: linear-gradient(180deg, #fff, #9a9aa0);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero__specs span {
+  display: block;
+  max-width: 22ch;
+  margin: 8px auto 0;
+  font-size: .95rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
 /* services */
 .services { background: var(--bg-2); }
 .services__bar {
@@ -851,6 +882,16 @@ input, textarea { font: inherit; letter-spacing: inherit; }
   .section__title br { display: none; }
   .hero { align-items: flex-end; padding: 88px 0 calc(100px + env(safe-area-inset-bottom)); }
   .hero__bg video { object-position: center 40%; }
+  .hero__eyebrow {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 980px;
+    background: rgba(0, 0, 0, .5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: .92rem;
+    text-shadow: none;
+  }
   .hero__bg::after {
     background: linear-gradient(180deg, rgba(0, 0, 0, .45) 0%, rgba(0, 0, 0, 0) 18%, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, .75) 68%, #000 100%);
   }
@@ -860,7 +901,9 @@ input, textarea { font: inherit; letter-spacing: inherit; }
   .card__sub { min-height: 0; }
   .bento { grid-template-columns: 1fr; grid-auto-rows: auto; }
   .tile, .tile--photo, .tile--insta { grid-column: auto; }
-  .tile { min-height: 200px; }
+  .tile { min-height: 0; justify-content: flex-start; padding: 28px 24px; }
+  .tile__num { position: static; display: block; margin-bottom: 14px; }
+  .tile--photo { padding: 0; justify-content: flex-end; }
   .tile--photo { min-height: 420px; }
   .tile--insta { flex-direction: column; align-items: flex-start; padding: 32px 28px; }
 
