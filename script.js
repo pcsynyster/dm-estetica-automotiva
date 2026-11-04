@@ -754,7 +754,12 @@ function initReels() {
   vids.forEach((v) => v.addEventListener("pause", () => { if (v.src) setTimeout(() => v.play().catch(() => {}), 50); }));
   if (!("IntersectionObserver" in window)) { vids.forEach(start); return; }
   const io = new IntersectionObserver((entries) => {
-    entries.forEach((en) => { if (en.isIntersecting) { start(en.target); io.unobserve(en.target); } });
+    entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      const group = en.target.closest(".reels");
+      const targets = group ? $$("video[data-src]", group) : [en.target];
+      targets.forEach((v) => { start(v); io.unobserve(v); });
+    });
   }, { rootMargin: "400px 0px" });
   vids.forEach((v) => io.observe(v));
   document.addEventListener("visibilitychange", () => { if (!document.hidden) vids.forEach((v) => v.src && v.play().catch(() => {})); });
